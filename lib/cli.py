@@ -10,6 +10,7 @@ class Room:
         self.check_in_date = None
         self.check_out_date = None
         self.special_requests = None
+        self.guest_details = None
 
 class Hotel:
     def __init__(self, name):
@@ -27,16 +28,17 @@ class Hotel:
                 available_rooms.append(room)
         return available_rooms
 
-    def book_room(self, guest_name, check_in_date, check_out_date, room_id, special_requests):
+    def book_room(self, guest_details, check_in_date, check_out_date, room_id, special_requests):
         for room in self.rooms:
             if room.room_id == room_id and not room.is_booked:
                 room.is_booked = True
-                room.guest_name = guest_name
+                room.guest_name = guest_details['name']
                 room.check_in_date = check_in_date
                 room.check_out_date = check_out_date
                 room.special_requests = special_requests
-                self.reservations[guest_name] = room
-                print(f"Room {room_id} booked successfully for {guest_name}.")
+                room.guest_details = guest_details
+                self.reservations[guest_details['name']] = room
+                print(f"Room {room_id} booked successfully for {guest_details['name']}.")
                 return
         print(f"Room {room_id} is not available for booking.")
 
@@ -58,6 +60,7 @@ class Hotel:
             room.check_in_date = None
             room.check_out_date = None
             room.special_requests = None
+            room.guest_details = None
             del self.reservations[guest_name]
             print(f"Booking for {guest_name} canceled successfully.")
         else:
@@ -72,19 +75,40 @@ class Hotel:
             print(f"Check-in Date: {room.check_in_date}")
             print(f"Check-out Date: {room.check_out_date}")
             print(f"Special Requests: {room.special_requests}")
+            print(f"Guest Details: {room.guest_details}")
         else:
             print(f"No booking found for {guest_name}.")
 
 def main():
     hotel = Hotel("Seamless Hospitality")
 
-    # Add rooms to the hotel
-    hotel.add_room(Room(101, "Single", 100))
-    hotel.add_room(Room(102, "Double", 150))
-    hotel.add_room(Room(103, "Suite", 200))
-
+    # Available rooms to the hotel
+    hotel.add_room(Room(100, "Single Room", 100))
+    hotel.add_room(Room(101, "Single Room", 101))
+    hotel.add_room(Room(201, "Single Room  with a View", 102))
+    hotel.add_room(Room(202, "Single Room", 103))
+    hotel.add_room(Room(301, "Double room/twin room", 150))
+    hotel.add_room(Room(303, "Double room/twin room", 151))
+    hotel.add_room(Room(304, "Double room/twin room with a View", 152))
+    hotel.add_room(Room(305, "Double room/twin room", 153))
+    hotel.add_room(Room(401, "Queen Room", 201))
+    hotel.add_room(Room(402, "Queen Room with a View", 202))
+    hotel.add_room(Room(403, "Queen Room", 203))
+    hotel.add_room(Room(404, "Triple Room", 204))
+    hotel.add_room(Room(501, "Triple Room with a View", 205))
+    hotel.add_room(Room(502, "Triple Room", 205))
+    hotel.add_room(Room(503, "Studio Rooms", 305))
+    hotel.add_room(Room(600, "Deluxe Rooms", 306))
+    hotel.add_room(Room(601, "Deluxe Rooms", 307))
+    hotel.add_room(Room(602, "Suites", 408))
+    hotel.add_room(Room(603, "Suites", 409))
+    hotel.add_room(Room(701, "Presidential Suites", 408))
+    hotel.add_room(Room(702, "Presidential Suites", 409))
+  
+#  menu options
     while True:
-        print("\nWelcome to the Hotel Booking and Reservation System")
+        print("\nWelcome to the Meko Hotel Booking and Reservation System")
+        print ("\nMenu:")
         print("1. Book Room")
         print("2. Modify Booking")
         print("3. Cancel Booking")
@@ -94,16 +118,30 @@ def main():
 
         if choice == 1:
             guest_name = input("Enter guest name: ")
+            guest_email = input("Enter guest email: ")
+            guest_gender = input("Enter guest gender: ")
+            guest_contact_number = input("Enter guest contact number: ")
+            print ("\n Enter the booking info:")
+            guest_children = int(input("Enter number of children: "))
+            guest_adults = int(input("Enter number of adults: "))
             check_in_date = input("Enter check-in date (YYYY-MM-DD): ")
             check_out_date = input("Enter check-out date (YYYY-MM-DD): ")
             special_requests = input("Enter special requests: ")
+            guest_details = {
+                'name': guest_name,
+                'email': guest_email,
+                'gender': guest_gender,
+                'children': guest_children,
+                'adults': guest_adults,
+                'contact_number': guest_contact_number
+            }
             available_rooms = hotel.list_available_rooms(check_in_date, check_out_date)
             if available_rooms:
                 print("Available Rooms:")
                 for room in available_rooms:
                     print(f"Room ID: {room.room_id}, Type: {room.room_type}, Price: ${room.price}")
                 room_id = int(input("Enter room ID to book: "))
-                hotel.book_room(guest_name, check_in_date, check_out_date, room_id, special_requests)
+                hotel.book_room(guest_details, check_in_date, check_out_date, room_id, special_requests)
             else:
                 print("No available rooms for the selected dates.")
         
