@@ -63,4 +63,5 @@ def fetch_all(query, params=None):
     conn.close()
     return records
 
-create_tables()
+if __name__ == "__main__":
+    create_tables()
