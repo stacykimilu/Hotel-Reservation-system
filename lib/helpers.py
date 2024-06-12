@@ -1,11 +1,9 @@
-import sqlite3
+from connection import get_db_connection
 
-DATABASE_NAME = 'hotel_management.db'
-
-def init_db():
-    conn = sqlite3.connect(DATABASE_NAME)
+def create_tables():
+    conn = get_db_connection()
     cursor = conn.cursor()
-    # Create tables
+
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS guests (
             id INTEGER PRIMARY KEY,
@@ -29,6 +27,7 @@ def init_db():
             room_id INTEGER,
             check_in_date TEXT NOT NULL,
             check_out_date TEXT NOT NULL,
+            special_requests TEXT,
             FOREIGN KEY (guest_id) REFERENCES guests(id),
             FOREIGN KEY (room_id) REFERENCES rooms(id)
         )
@@ -44,7 +43,7 @@ def init_db():
     conn.close()
 
 def execute_query(query, params=None):
-    conn = sqlite3.connect(DATABASE_NAME)
+    conn = get_db_connection()
     cursor = conn.cursor()
     if params:
         cursor.execute(query, params)
@@ -54,7 +53,7 @@ def execute_query(query, params=None):
     conn.close()
 
 def fetch_all(query, params=None):
-    conn = sqlite3.connect(DATABASE_NAME)
+    conn = get_db_connection()
     cursor = conn.cursor()
     if params:
         cursor.execute(query, params)
@@ -63,3 +62,5 @@ def fetch_all(query, params=None):
     records = cursor.fetchall()
     conn.close()
     return records
+
+create_tables()

@@ -1,13 +1,10 @@
+from helpers import execute_query
+
 class Hotel:
     def __init__(self, name, address):
         self.name = name
         self.address = address
-        self.rooms = []
 
-    def add_room(self, room):
-        # Code to add a room
-        pass
-
-    def remove_room(self, room):
-        # Code to remove a room
-        pass
+    def add_hotel(self):
+        query = 'INSERT INTO hotels (name, address) VALUES (?, ?)'
+        execute_query(query, (self.name, self.address))

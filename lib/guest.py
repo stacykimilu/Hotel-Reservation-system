@@ -1,11 +1,14 @@
+from helpers import execute_query
+
 class Guest:
     def __init__(self, name, contact_info):
         self.name = name
         self.contact_info = contact_info
-        self.reservation_history = []
 
     def add_guest(self):
-        pass
+        query = 'INSERT INTO guests (name, contact_info) VALUES (?, ?)'
+        execute_query(query, (self.name, self.contact_info))
 
     def remove_guest(self):
-        pass
+        query = 'DELETE FROM guests WHERE name = ? AND contact_info = ?'
+        execute_query(query, (self.name, self.contact_info))
