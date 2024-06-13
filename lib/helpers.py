@@ -82,6 +82,6 @@ def init_db():
 
     for room in rooms:
         execute_query('''
-        INSERT INTO room (id, room_type, price, hotel_id, is_booked)
+        INSERT OR IGNORE INTO room (id, room_type, price, hotel_id, is_booked)
         VALUES (?, ?, ?, ?, ?)
         ''', room)
