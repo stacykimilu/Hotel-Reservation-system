@@ -1,67 +1,87 @@
-from connection import get_db_connection
+# lib/helpers.py
 
-def create_tables():
-    conn = get_db_connection()
-    cursor = conn.cursor()
+import sqlite3
 
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS guests (
-            id INTEGER PRIMARY KEY,
-            name TEXT NOT NULL,
-            contact_info TEXT NOT NULL
-        )
-    ''')
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS rooms (
-            id INTEGER PRIMARY KEY,
-            hotel_id INTEGER,
-            room_number TEXT NOT NULL,
-            status TEXT NOT NULL,
-            FOREIGN KEY (hotel_id) REFERENCES hotels(id)
-        )
-    ''')
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS reservations (
-            id INTEGER PRIMARY KEY,
-            guest_id INTEGER,
-            room_id INTEGER,
-            check_in_date TEXT NOT NULL,
-            check_out_date TEXT NOT NULL,
-            special_requests TEXT,
-            FOREIGN KEY (guest_id) REFERENCES guests(id),
-            FOREIGN KEY (room_id) REFERENCES rooms(id)
-        )
-    ''')
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS hotels (
-            id INTEGER PRIMARY KEY,
-            name TEXT NOT NULL,
-            address TEXT NOT NULL
-        )
-    ''')
-    conn.commit()
-    conn.close()
+DB_FILE = 'hotel.db'
 
-def execute_query(query, params=None):
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    if params:
+def create_connection():
+    return sqlite3.connect(DB_FILE)
+
+def execute_query(query, params=()):
+    conn = create_connection()
+    try:
+        cursor = conn.cursor()
         cursor.execute(query, params)
-    else:
-        cursor.execute(query)
-    conn.commit()
-    conn.close()
+        conn.commit()
+        return cursor.lastrowid
+    finally:
+        conn.close()
 
-def fetch_all(query, params=None):
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    if params:
+def fetch_query(query, params=()):
+    conn = create_connection()
+    try:
+        cursor = conn.cursor()
         cursor.execute(query, params)
-    else:
-        cursor.execute(query)
-    records = cursor.fetchall()
-    conn.close()
-    return records
+        return cursor.fetchall()
+    finally:
+        conn.close()
 
-if __name__ == "__main__":
-    create_tables()
+def init_db():
+    execute_query('''
+    CREATE TABLE IF NOT EXISTS guest (
+        id INTEGER PRIMARY KEY,
+        name TEXT,
+        email TEXT,
+        gender TEXT,
+        contact_number TEXT
+    )
+    ''')
+
+    execute_query('''
+    CREATE TABLE IF NOT EXISTS hotel (
+        id INTEGER PRIMARY KEY,
+        name TEXT
+    )
+    ''')
+
+    execute_query('''
+    CREATE TABLE IF NOT EXISTS room (
+        id INTEGER PRIMARY KEY,
+        room_type TEXT,
+        price REAL,
+        hotel_id INTEGER,
+        is_booked BOOLEAN,
+        check_in_date TEXT,
+        check_out_date TEXT,
+        special_requests TEXT,
+        guest_id INTEGER,
+        FOREIGN KEY (hotel_id) REFERENCES hotel (id),
+        FOREIGN KEY (guest_id) REFERENCES guest (id)
+    )
+    ''')
+
+    execute_query('''
+    CREATE TABLE IF NOT EXISTS reservation (
+        id INTEGER PRIMARY KEY,
+        guest_id INTEGER,
+        room_id INTEGER,
+        check_in_date TEXT,
+        check_out_date TEXT,
+        special_requests TEXT,
+        FOREIGN KEY (guest_id) REFERENCES guest (id),
+        FOREIGN KEY (room_id) REFERENCES room (id)
+    )
+    ''')
+
+    # Add hardcoded rooms
+    rooms = [
+        (100, "Single Room", 100, 1, False),
+        (101, "Double Room", 150, 1, False),
+        (102, "Suite", 300, 1, False)
+    ]
+
+    for room in rooms:
+        execute_query('''
+        INSERT INTO room (id, room_type, price, hotel_id, is_booked)
+        VALUES (?, ?, ?, ?, ?)
+        ''', room)

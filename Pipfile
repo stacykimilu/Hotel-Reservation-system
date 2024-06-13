@@ -2,13 +2,10 @@
 url = "https://pypi.org/simple"
 verify_ssl = true
 name = "pypi"
-
-[packages]
-ipdb = "*"
-faker = "*"
-pytest = "7.1.3"
-
 [dev-packages]
 
+[packages]
+click = "*"
+
 [requires]
-python_version = "3.11.6"
+python_version = "3.8"
